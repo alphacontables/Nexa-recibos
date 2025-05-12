@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexa Recibos</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    .brand {
+      color: #00bcd4;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/KfJbGiG.png" width="100" alt="Logo Nexa" />
+    <h2 class="brand">Nexa Créditos</h2>
+    <p>Te lo hacemos fácil!</p>
+    <form id="reciboForm">
+      <input type="text" id="cliente" placeholder="Nombre del Cliente" required />
+      <input type="number" id="cuota" placeholder="Número de cuota" required />
+      <input type="number" id="total" placeholder="Total de cuotas" required />
+      <input type="number" id="monto" placeholder="Monto recibido" required />
+      <button type="submit">Generar Recibo</button>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+    let reciboNum = parseInt(localStorage.getItem('nexa_recibo_num')) || 1;
+
+    document.getElementById('reciboForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const cliente = document.getElementById('cliente').value;
+      const cuota = document.getElementById('cuota').value;
+      const total = document.getElementById('total').value;
+      const monto = document.getElementById('monto').value;
+
+      const pdf = new jsPDF();
+      const fecha = new Date().toLocaleString('es-AR');
+      const nroRecibo = reciboNum.toString().padStart(6, '0');
+
+      pdf.setFontSize(12);
+      pdf.setTextColor(0);
+      pdf.setFont(undefined, 'bold');
+      pdf.text("Nexa Créditos", 105, 20, { align: "center" });
+      pdf.setFont(undefined, 'normal');
+      pdf.text("WhatsApp: 2614231262 | Email: creditos@nexafinanzas.info", 105, 27, { align: "center" });
+      pdf.line(20, 30, 190, 30);
+
+      pdf.text(`Cliente: ${cliente}`, 20, 45);
+      pdf.text(`Fecha: ${fecha}`, 20, 55);
+      pdf.text(`Recibo Nº: ${nroRecibo}`, 20, 65);
+      pdf.text(`Abonó: Cuota ${cuota.padStart(2, '0')} de ${total.padStart(2, '0')}`, 20, 75);
+      pdf.text(`Valor: $${parseFloat(monto).toLocaleString('es-AR')}`, 20, 85);
+
+      pdf.setTextColor(0, 188, 212);
+      pdf.setFont(undefined, 'bold');
+      pdf.text("Gracias por tu pago, tu cuenta está al día.", 105, 270, { align: "center" });
+
+      pdf.save(`Recibo_${cliente.replace(/\s+/g, '_')}_${nroRecibo}.pdf`);
+      reciboNum++;
+      localStorage.setItem('nexa_recibo_num', reciboNum);
+    });
+  </script>
+</body>
+</html>
